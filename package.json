@@ -1,0 +1,34 @@
+{
+  "name": "bit-consumer",
+  "version": "1.0.0",
+  "author": "Joakim L. Christiansen (https://joakimch.github.io)",
+  "license": "MIT",
+  "type": "module",
+  "main": "source/bitConsumer.js",
+  "files": [
+    "source/bitConsumer.js"
+  ],
+  "repository": "github:JoakimCh/bit-consumer",
+  "funding": "https://joakimch.github.io/funding.html",
+  "description": "An ES module providing a \"bit consumer\" class allowing you to feed it endless of bits and receive unsigned integers back from them whenever the wanted amount of bits has been consumed. The bits are consumed in the order of the most significant bits first.",
+  "keywords": [
+    "bit",
+    "consumer",
+    "consume",
+    "binary",
+    "bigint",
+    "integer",
+    "from",
+    "bits"
+  ],
+  "scripts": {
+    "test": "node tests/runAll.js",
+    "docs": "jsdoc2md --template readmeTemplate.md source/*.js --param-list-format list> readme.md"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "devDependencies": {
+    "jsdoc-to-markdown": "^7.0.1"
+  }
+}
