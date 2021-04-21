@@ -85,12 +85,12 @@ A "bit consumer" class allowing you to feed it endless of bits and receive unsig
 **Params**
 
 - bitsWanted <code>number</code> - Each time this many bits has been consumed the `onIntegerReady` callback is called with an integer created from those bits.
-- [onIntegerReady] <code>function</code> - The callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 53 bits are wanted then it will receive a `BigInt`. It's optional because it can be set later.
+- [onIntegerReady] <code>function</code> - The callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 32 bits are wanted then it will receive a `BigInt`. It's optional because it can be set later.
 
 <a name="module_bit-consumer.BitConsumer+onIntegerReady"></a>
 
 #### bitConsumer.onIntegerReady
-Set to a callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 53 bits are wanted then it will receive a `BigInt`.
+Set to a callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 32 bits are wanted then it will receive a `BigInt`.
 
 **Kind**: instance property of [<code>BitConsumer</code>](#module_bit-consumer.BitConsumer)  
 <a name="module_bit-consumer.BitConsumer+integerFromRemains"></a>
@@ -102,7 +102,7 @@ If the `BitConsumer` has consumed more bits since the last call to the `onIntege
 <a name="module_bit-consumer.BitConsumer+consumeBitsFromInteger"></a>
 
 #### bitConsumer.consumeBitsFromInteger(integer, bitsToConsume)
-The bits must come from somewhere and consuming them from an integer (up to 53 bits) is the fastest way to do it. If you need more bits you can consume them from a BigInt. If the integer has more bits than the amount you want to consume then it will consume the least significant bits of that integer.
+The bits must come from somewhere and consuming them from an integer (up to 32 bits) is the fastest way to do it. If you need more bits you can consume them from a BigInt. If the integer has more bits than the amount you want to consume then it will consume the least significant bits of that integer.
 
 **Kind**: instance method of [<code>BitConsumer</code>](#module_bit-consumer.BitConsumer)  
 **Params**

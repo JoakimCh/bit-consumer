@@ -17,3 +17,15 @@ bc.onIntegerReady = integer => {
   bc.onIntegerReady = integer => assert(integer, 0)
 }
 bc.consumeBitsFromInteger(0b11000000, 8)
+
+// BigInt overflow
+bc = new BitConsumer(36)
+bc.onIntegerReady = integer => {
+  assert(integer, 0xABCD_ABCDEn)
+  bc.onIntegerReady = integer => {
+    assert(integer, 0xABCD_ABCDEn)
+    bc.onIntegerReady = integer => assert(integer, 0xDDDDEEEEEn)
+  }
+}
+bc.consumeBitsFromInteger(0xABCD_ABCDE_ABCD_ABCDE_DDDDn, 36*2 + 16)
+bc.consumeBitsFromInteger(0xEEEEE, 16+4)

@@ -2,11 +2,10 @@
  * @module bit-consumer
  */
 
-function bitmask(width) { // up to 53 bits
+function bitmask(width) { // up to 32 bits
   // see: https://stackoverflow.com/questions/39660274/create-variable-width-bitmasks-0-32-bits-in-javascript
-  return 2**width - 1
-  // return width && -1 >>> 32 - width;
-  //return Math.pow(2, width) - 1
+  return -1 >>> (32 - width) // fastest I guess
+  // return 2**width - 1 // up to 53, but not really a point
 }
 function bitmaskBigInt(width) {
   return 2n**BigInt(width) - 1n
@@ -19,16 +18,16 @@ function bitmaskBigInt(width) {
   #bitsWanted; #bitIndex; #integerFromBits; #onIntegerReady; #bigInt
   /**
    * @param {number} bitsWanted Each time this many bits has been consumed the `onIntegerReady` callback is called with an integer created from those bits.
-   * @param {function} [onIntegerReady] The callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 53 bits are wanted then it will receive a `BigInt`. It's optional because it can be set later.
+   * @param {function} [onIntegerReady] The callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 32 bits are wanted then it will receive a `BigInt`. It's optional because it can be set later.
    */
   constructor(bitsWanted, onIntegerReady = function(){}) {
-    if (bitsWanted > 53) this.#bigInt = true
+    if (bitsWanted > 32) this.#bigInt = true
     this.#bitsWanted = bitsWanted
     this.#bitIndex = bitsWanted
     this.#integerFromBits = this.#bigInt ? 0n : 0
     this.#onIntegerReady = onIntegerReady
   }
-  /** Set to a callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 53 bits are wanted then it will receive a `BigInt`.
+  /** Set to a callback function to receive an integer each time the amount of wanted bits has been consumed. If more than 32 bits are wanted then it will receive a `BigInt`.
   */
   set onIntegerReady(callback) {
     if (typeof callback == 'function')
@@ -50,7 +49,7 @@ function bitmaskBigInt(width) {
   }
   
   /**
-   * The bits must come from somewhere and consuming them from an integer (up to 53 bits) is the fastest way to do it. If you need more bits you can consume them from a BigInt. If the integer has more bits than the amount you want to consume then it will consume the least significant bits of that integer.
+   * The bits must come from somewhere and consuming them from an integer (up to 32 bits) is the fastest way to do it. If you need more bits you can consume them from a BigInt. If the integer has more bits than the amount you want to consume then it will consume the least significant bits of that integer.
    * @param {(number|bigint)} integer The `Number` or `BigInt` to consume bits from.
    * @param {number} bitsToConsume The amount of bits to consume.
    */
@@ -65,7 +64,11 @@ function bitmaskBigInt(width) {
         if (numConsumable > bitsToConsume-consumedBits) {
           numConsumable = bitsToConsume-consumedBits
         }
-        this.consumeBitsFromInteger(integer >> (bitsToConsume-(consumedBits+numConsumable)), numConsumable)
+        if (typeof integer == 'bigint') {
+          this.consumeBitsFromInteger(integer >> BigInt(bitsToConsume-(consumedBits+numConsumable)), numConsumable)
+        } else {
+          this.consumeBitsFromInteger(integer >> (bitsToConsume-(consumedBits+numConsumable)), numConsumable)
+        }
         consumedBits += numConsumable
       }
       return
@@ -76,14 +79,14 @@ function bitmaskBigInt(width) {
       if (!this.#bigInt) throw Error('With '+this.#bitsWanted+' bits wanted don\'t consume bits from a BigInt (convert it to a number).')
       integer &= bitmaskBigInt(bitsToConsume)
       this.#integerFromBits |= integer << BigInt(this.#bitIndex)
-    } else if (bitsToConsume > 53) {
-      throw Error('If you want to consume more than 53 bits from an integer then it must be a BigInt.')
+    } else if (bitsToConsume > 32) {
+      throw Error('If you want to consume more than 32 bits from an integer then it must be a BigInt.')
     } else if (this.#bigInt) {
       integer &= bitmask(bitsToConsume)
-      this.#integerFromBits |= BigInt(integer) << BigInt(this.#bitIndex)
+      this.#integerFromBits |= BigInt(integer >>> 0) << BigInt(this.#bitIndex)
     } else {
       integer &= bitmask(bitsToConsume)
-      this.#integerFromBits |= integer << this.#bitIndex
+      this.#integerFromBits = (this.#integerFromBits | (integer << this.#bitIndex)) >>> 0
     }
 
     if (this.#bitIndex == 0) {
